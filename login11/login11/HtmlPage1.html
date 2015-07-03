@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+</head>
+<body>
+    <span class="g-signin" data-callback="loginFinishedCallback" class="oauthLogin" style="cusor:pointer;"
+          data-clientid="952074762228-5jv261oa2pkm19rjo1dk0rd18o6hkecc.apps.googleusercontent.com"
+          data-cookiepolicy="single_host_origin"
+          data-requestvisibleactions="http://schemas.google.com/AddActivity"
+          data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email">
+        <img src="${pageContext.request.contextPath}/template/${gname}/images/google-search.png" alt="google" width="50"
+             height="50" />
+    </span>
+    <h1 id="text"></h1>
+</body>
+
+<script src="https://apis.google.com/js/plusone.js" type="text/javascript"></script>
+<script>
+			(function() {
+				var po = document.createElement('script');
+				po.type = 'text/javascript';
+				po.async = true;
+				po.src = 'https://apis.google.com/js/client:plusone.js?onload=render';
+				var s = document.getElementsByTagName('script')[0];
+				s.parentNode.insertBefore(po, s);
+
+			})();
+				/*
+				 * 로그인을 승인하거나, 취소하거나, 승인 대화상자를
+				 * 닫으면 실행됩니다.
+				 */
+				function loginFinishedCallback(authResult) {
+					if (authResult) {
+						if (authResult['error'] == undefined) {
+							gapi.auth.setToken(authResult); // 반환된 토큰을 저장합니다.
+							// 로그인에 성공하면 로그인을 숨깁니다.
+							getEmail(); // 이메일 주소 가져오기 요청을 실행합니다.
+
+						} else {
+							console.log('An error occurred');
+						}
+					} else {
+						console.log('Empty authResult'); // 문제 발생
+					}
+				}
+
+				/*
+				 * userinfo 끝점에 대한 요청을 실행하여 사용자의 이메일
+				 * 주소를 가져옵니다. 이 함수에는 유효한 OAuth 액세스 토큰이 포함된 gapi.auth.setToken이
+				 *  필요합니다.
+				 *
+				 * 요청이 완료되면 getEmailCallback이 실행되고 요청의 결과가
+				 * 전달됩니다.
+				 */
+				function getEmail() {
+					// userinfo 메소드를 사용할 수 있도록 oauth2 라이브러리를 로드합니다.
+					gapi.client.load('oauth2', 'v2', function() {
+						var request = gapi.client.oauth2.userinfo.get();
+						request.execute(getEmailCallback);
+					});
+				}
+
+				function getEmailCallback(obj) {
+					var email = '';
+
+					if (obj['email']) {
+						email = 'Email: ' + obj['email'];
+					}
+					//console.log(obj);
+				    // 전체 개체를 검사하려면 주석을 해제합니다.
+					document.getElementById("text").innerHTML = email;
+					googlePlusLogin(obj);
+				}
+
+				function googlePlusLogin(obj) {
+					var afterGoogleCheck = function(){
+						$.ajax({
+							url : "${pageContext.request.contextPath}/game/${gname}/socialUserCheck.json",
+							data : {email : obj.email},
+							method:'get',
+							success : function (data){
+								if(data.status == "success") {
+									location.href="${pageContext.request.contextPath}/game/${gname}/socialLogin";
+								}	else {
+
+									$('#join_firstName').val(obj.given_name);
+									$('#join_lastName').val(obj.family_name);
+									$('#join_email').val(obj.email);
+									$('#join_gender').val(obj.gender);
+
+									$('#socialJoinModal').modal('show');
+									//alert('您尚未註冊為MangoT5會員，請按”確定”加入會員!');
+
+									//$('#socialJoinform').submit();
+								}
+							},
+							error:function (error){
+								alert("error! please retry.");
+								console.log(error);
+							}
+						});
+
+					};
+
+					$('.g-signin').bind('click',afterGoogleCheck);
+
+				}
+</script>
+
+</html>
