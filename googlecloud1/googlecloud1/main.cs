@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Google.Apis.Drive.v2;
@@ -15,67 +16,102 @@ namespace googlecloud1
     public partial class main : Form
     {
         DriveService service;
+        File file { get; set; }
+        private File SelectedItem { get; set; }
         public main()
         {
             InitializeComponent();
         }
 
-        private void main_Load(object sender, EventArgs e)
+        private async void main_Load(object sender, EventArgs e)
         {
-            Signin();
+            await Signin();
         }
-        public void Signin()
+        public async Task Signin()
         {
             service = Authentication.AuthenticateOauth("892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com", "eyOFpG-LFIfp8ad3usTL81LG", "low");
             if(service != null)
             {
-                try
-                {
-                    string Q = "title = '메신저' and mimeType = 'application/vnd.google-apps.folder'";
-                    IList<File> _Files = DaimtoGoogleDriveHelper.GetFiles(service, Q);
-
-                    foreach (File item in _Files)
-                    {
-                        this.listBox1.Items.Add(item.Title + " " + item.MimeType);
-                    }
-                    // If there isn't a directory with this name lets create one.
-                    if (_Files.Count == 0)
-                    {
-                        _Files.Add(DaimtoGoogleDriveHelper.createDirectory(service, "test", "test", "root"));
-                    }
-
-                    // We should have a directory now because we either had it to begin with or we just created one.
-                    if (_Files.Count != 0)
-                    {
-
-                        // This is the ID of the directory 
-                        string directoryId = _Files[0].Id;
-
-                        //Upload a file
-                        //File newFile = DaimtoGoogleDriveHelper.uploadFile(service, @"c:\GoogleDevelop\dummyUploadFile.txt", directoryId);
-                        // Update The file
-                       // File UpdatedFile = DaimtoGoogleDriveHelper.updateFile(service, @"c:\GoogleDevelop\dummyUploadFile.txt", directoryId, newFile.Id);
-                        // Download the file
-                        //DaimtoGoogleDriveHelper.downloadFile(service, newFile, @"C:\GoogleDevelop\downloaded.txt");
-                        // delete The file
-                       // FilesResource.DeleteRequest request = service.Files.Delete(newFile.Id);
-                       // request.Execute();
-                    }
-
-                    // Getting a list of ALL a users Files (This could take a while.)
-                    _Files = DaimtoGoogleDriveHelper.GetFiles(service, null);
-
-                    foreach (File item in _Files)
-                    {
-                        this.listBox1.Items.Add(item.Title + " " + item.MimeType);
-                    }
-                }
-                catch (Exception ex)
-                {
-
-                    int i = 1;
-                }
+                await LoadFolderFromId("root");
             }
         }
+        private void ShowWork(bool working)
+        {
+            this.UseWaitCursor = working;
+            this.progressBar1.Visible = working;
+        }
+        private async Task LoadFolderFromId(string id)
+        {
+            if (null == service) return;
+
+            // Update the UI for loading something new
+            ShowWork(true);
+            LoadChildren(null);  // Clear the current folder view
+
+            try
+            {
+                FilesResource file = service.Files;
+                var selectedItem = await file.Get(id).ExecuteAsync();
+                //ProcessFolder(selectedItem);
+            }
+            catch
+            {
+                
+            }
+
+            ShowWork(false);
+        }
+
+        //private async void ProcessFolder(File folder)
+        //{
+        //    if (null != folder)
+        //    {
+        //        this.file = folder;
+
+        //        LoadProperties(folder);
+        //        FileList pagedItemCollection = await folder.PagedChildrenCollectionAsync(Connection, ChildrenRetrievalOptions.DefaultWithThumbnails);
+        //        LoadChildren(pagedItemCollection, false);
+
+        //        while (pagedItemCollection.MoreItemsAvailable())
+        //        {
+        //            pagedItemCollection = await pagedItemCollection.GetNextPage(Connection);
+        //            LoadChildren(pagedItemCollection, false);
+        //        }
+        //    }
+        //}
+
+        //private void LoadProperties(File item)
+        //{
+        //    SelectedItem = item;
+        //    oneDriveObjectBrowser1.SelectedItem = item;
+        //}
+        private void LoadChildren(FileList items, bool clearExistingItems = true)
+        {
+            flowLayoutPanel_filecontent.SuspendLayout();
+
+            if (clearExistingItems)
+                flowLayoutPanel_filecontent.Controls.Clear();
+
+            // Load the children
+            if (null != items)
+            {
+                List<Control> newControls = new List<Control>();
+                foreach (var obj in items.Items)
+                {
+                    //newControls.Add(CreateControlForChildObject(obj));
+                }
+                flowLayoutPanel_filecontent.Controls.AddRange(newControls.ToArray());
+            }
+
+            flowLayoutPanel_filecontent.ResumeLayout();
+        }
+        //private Control CreateControlForChildObject(File item)
+        //{
+        //    FileTile tile = new FileTile { SourceItem = item, Connection = this.Connection };
+        //    tile.Click += ChildObject_Click;
+        //    tile.DoubleClick += ChildObject_DoubleClick;
+        //    tile.Name = item.Id;
+        //    return tile;
+        //}
     }
 }

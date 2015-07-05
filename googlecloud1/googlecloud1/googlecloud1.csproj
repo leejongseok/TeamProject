@@ -104,6 +104,18 @@
   <ItemGroup>
     <Compile Include="auth\Authentication.cs" />
     <Compile Include="auth\DaimtoGoogleDriveHelper.cs" />
+    <Compile Include="DriveObjectBrowser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DriveObjectBrowser.Designer.cs">
+      <DependentUpon>DriveObjectBrowser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FileTile.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FileTile.Designer.cs">
+      <DependentUpon>FileTile.cs</DependentUpon>
+    </Compile>
     <Compile Include="login\FileDataStore.cs" />
     <Compile Include="login\googleauth.cs" />
     <Compile Include="login\GoogleWebAuthorizationBroker.cs" />
@@ -121,6 +133,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FileTile.resx">
+      <DependentUpon>FileTile.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="login\loginform.resx">
       <DependentUpon>loginform.cs</DependentUpon>
     </EmbeddedResource>
