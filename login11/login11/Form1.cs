@@ -36,20 +36,32 @@ namespace login11
               // 4/ZxjOgQ_VNzRtiEgPkfSjbx2gbxbyKmPu5o2D6JvQVx0
             //IAuthorizationCodeFlow app;
             //    AuthorizationCodeInstalledApp app = new AuthorizationCodeInstalledApp(IAuthorizationCodeFlow)
-            //    Task<UserCredential> user = app.AuthorizeAsync("892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com", CancellationToken.None);
-                string url = string.Format("{0}?&scope=email%20profile%20" + DriveService.Scope.Drive + "&redirect_uri={1}&response_type={2}&client_id={3}&approval_prompt=force&access_type=online&state=security_token&include_granted_scopes=true",
+                //Task<UserCredential> user = app.AuthorizeAsync("892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com", CancellationToken.None);
+                string url = string.Format("{0}?&scope=email%20profile%20" + DriveService.Scope.Drive + "&redirect_uri={1}&response_type={2}&client_id={3}&approval_prompt=force&access_type=online&include_granted_scopes=true",
                     "https://accounts.google.com/o/oauth2/auth",
                     GoogleAuthConsts.InstalledAppRedirectUri,
                     "code",
                     "892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com");
-            
+
                 this.webBrowser1.Navigate(url);
+                //DriveService drive = Authentication.AuthenticateOauth("892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com", "eyOFpG-LFIfp8ad3usTL81LG", "baba");
             }
 
         private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
         {
             string text = webBrowser1.Url.AbsoluteUri;
+            string html;
+            try
+            {
+                html = webBrowser1.Document.Title;
+                int num1 = html.IndexOf(" ");
+                int num2 = html.IndexOf("&");
+                html = html.Substring(num1 + 1, (num2 - num1) - 1);
+            }
+            catch
+            {
 
+            }
             if (string.IsNullOrEmpty(text) == true)
             {
                 return;
