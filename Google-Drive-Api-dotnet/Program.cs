@@ -29,7 +29,6 @@ namespace Daimto.Drive.api
 
             try
             {
-
                 // Listing files with search.  
                 // This searches for a directory with the name DiamtoSample
                 string Q = "title = '메신저' and mimeType = 'application/vnd.google-apps.folder'";
@@ -37,7 +36,7 @@ namespace Daimto.Drive.api
 
                 foreach (File item in _Files)
                 {
-                    Console.WriteLine(item.Title + " " + item.MimeType);
+                    Console.WriteLine(item.Title + " " + item.MimeType)
                 }
 
                 // If there isn't a directory with this name lets create one.
