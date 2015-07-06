@@ -12,7 +12,7 @@ namespace Daimto.Drive.api
             // Connect with Oauth2 Ask user for permission
             String CLIENT_ID = "892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com";
             String CLIENT_SECRET = "eyOFpG-LFIfp8ad3usTL81LG";      
-            DriveService service = Authentication.AuthenticateOauth(CLIENT_ID, CLIENT_SECRET, "baba");
+            DriveService service = Authentication.AuthenticateOauth(CLIENT_ID, CLIENT_SECRET, "korea12");
 
 
             // connect with a Service Account
