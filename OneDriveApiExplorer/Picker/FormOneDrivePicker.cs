@@ -166,6 +166,11 @@ namespace OneDriveSamples.Picker
             webBrowser.GoForward();
         }
         #endregion
+
+        private void webBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+
+        }
     }
 
     public class PickerResult
