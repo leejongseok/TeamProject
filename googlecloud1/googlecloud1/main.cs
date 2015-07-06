@@ -16,8 +16,6 @@ using Google.Apis.Drive.v2.Data;
 using Google.Apis.Requests;
 using Google.Apis.Download;
 using Google.Apis.Http;
-using System.Net;
-
 namespace googlecloud1
 {
     public partial class main : Form
@@ -209,8 +207,12 @@ namespace googlecloud1
                 dialog.FileName = item.OriginalFilename;
                 dialog.Filter = "All Files (*.*)|*.*";
                 var result = dialog.ShowDialog();
-                if (result != System.Windows.Forms.DialogResult.OK) return;
-                DaimtoGoogleDriveHelper.downloadFile(service, file, dialog.FileName);
+                if (result != System.Windows.Forms.DialogResult.OK)
+                {
+                    return;
+                }
+                await DaimtoGoogleDriveHelper.downloadFile(service, item, dialog.FileName);
+              
             }
         }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Google.Apis.Drive.v2;
 using Google.Apis.Drive.v2.Data;
-
+using System.Threading.Tasks;
 namespace Daimto.Drive.api
 {
     public class DaimtoGoogleDriveHelper
@@ -16,7 +16,7 @@ namespace Daimto.Drive.api
         /// <param name="_fileResource">File resource of the file to download</param>
         /// <param name="_saveTo">location of where to save the file including the file name to save it as.</param>
         /// <returns></returns>
-        public static Boolean downloadFile(DriveService _service, File _fileResource, string _saveTo)
+        public async static Task<Boolean> downloadFile(DriveService _service, File _fileResource, string _saveTo)
         {
 
             if (!String.IsNullOrEmpty(_fileResource.DownloadUrl))
