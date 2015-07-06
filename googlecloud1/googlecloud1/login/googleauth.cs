@@ -19,14 +19,14 @@ namespace googlecloud1.login
     {
         private readonly GoogleAuthorizationCodeFlow flow;
         private readonly ICodeReceiver codeReceiver;
-        public string StartUrl { get; private set; }
-        public string EndUrl { get; private set; }
         public googleauth(GoogleAuthorizationCodeFlow flow, ICodeReceiver codeReceiver)
         { 
             this.flow = flow;
             this.codeReceiver = codeReceiver;
         }
-
+        /// <summary>
+        /// 개발자 id와 비밀번호 또 접근 권한 설정등이 담겨있는 Flow클래스
+        /// </summary>
         public IAuthorizationCodeFlow Flow
         {
             get { return flow; }
@@ -37,11 +37,17 @@ namespace googlecloud1.login
         {
             get { return codeReceiver; }
         }
-
+        /// <summary>
+        /// 로그인 처리 코드를 가져와 토큰으로 교환
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="taskCancellationToken"></param>
+        /// <returns></returns>
         public async Task<UserCredential> AuthorizeAsync(string userId, CancellationToken taskCancellationToken)
         {
-            // Try to load a token from the data store.
+            // 토큰이 로컬에 저장되어 있으면 저장되어있는 토큰을 불러옴
             var token = await flow.LoadTokenAsync(userId, taskCancellationToken).ConfigureAwait(false);
+            // 로컬에 저장되어 있는 토큰이 없으면 실행
             if (token == null || (token.RefreshToken == null && token.IsExpired(flow.Clock)))
             {
                 var authorizationCode = await loginform.GetAuthenticationToken(flow.ClientSecrets.ClientId, flow. Scopes, userId);
@@ -49,7 +55,7 @@ namespace googlecloud1.login
                     return null;
                 //Logger.Debug("Received \"{0}\" code", response.Code);
 
-                // Get the token based on the code.
+                // 코드를 기반으로 토큰을 얻어옴
                 token = await flow.ExchangeCodeForTokenAsync(userId, authorizationCode, GoogleAuthConsts.InstalledAppRedirectUri,
                     taskCancellationToken).ConfigureAwait(false);
             }

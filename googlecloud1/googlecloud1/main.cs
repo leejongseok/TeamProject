@@ -27,9 +27,13 @@ namespace googlecloud1
         {
             await Signin();
         }
+        /// <summary>
+        /// 드라이브 정보를 받아옴
+        /// </summary>
+        /// <returns></returns>
         public async Task Signin()
         {
-            service = Authentication.AuthenticateOauth("892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com", "eyOFpG-LFIfp8ad3usTL81LG", "bitbit");
+            service = Authentication.AuthenticateOauth("892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com", "eyOFpG-LFIfp8ad3usTL81LG", "bit12");
             if(service != null)
             {
                 await LoadFolderFromId("root");

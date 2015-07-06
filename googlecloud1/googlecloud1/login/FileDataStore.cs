@@ -9,18 +9,15 @@ namespace googlecloud1.login
     public class FileDataStore : IDataStore
     {
         readonly string folderPath;
-        /// <summary>Gets the full folder path.</summary>
+        /// <summary>폴더의 경로.</summary>
         public string FolderPath { get { return folderPath; } }
 
         /// <summary>
-        /// Constructs a new file data store. If <c>fullPath</c> is <c>false</c> the path will be used as relative to 
-        /// <see cref="Environment.SpecialFolder.ApplicationData"/>, otherwise the input folder will be treated as
-        /// absolute.
-        /// The folder is created if it doesn't exist yet.
+        /// file data store의 생성자 (저장될 폴더의 경로 설정)
         /// </summary>
-        /// <param name="folder">Folder path.</param>
+        /// <param name="folder">저장될 폴더의 경로</param>
         /// <param name="fullPath">
-        /// Defines weather the folder parameter is absolute or relative to
+        /// 절대적인 혹은 상대적인 전체 경로 (기본값 false)
         /// <see cref="Environment.SpecialFolder.ApplicationData"/>.
         /// </param>
         public FileDataStore(string folder, bool fullPath = false)
@@ -35,12 +32,12 @@ namespace googlecloud1.login
         }
 
         /// <summary>
-        /// Stores the given value for the given key. It creates a new file (named <see cref="GenerateStoredKey"/>) in 
+        /// 얻어온 키와 값으로 새로운 파일을 만들어서 저장한다<see cref="GenerateStoredKey"/>) in 
         /// <see cref="FolderPath"/>.
         /// </summary>
-        /// <typeparam name="T">The type to store in the data store.</typeparam>
-        /// <param name="key">The key.</param>
-        /// <param name="value">The value to store in the data store.</param>
+        /// <typeparam name="T">저장될 데이터의 타입형식.</typeparam>
+        /// <param name="key">key값 저장 데이터의 분류를 위한 key</param>
+        /// <param name="value">저장될 데이터의 내부 값 (ex:토큰이나 코드 같은 종류의 값들).</param>
         public Task StoreAsync<T>(string key, T value)
         {
             if (string.IsNullOrEmpty(key))
@@ -55,10 +52,10 @@ namespace googlecloud1.login
         }
 
         /// <summary>
-        /// Deletes the given key. It deletes the <see cref="GenerateStoredKey"/> named file in 
+        ///  키값을 이용하여 정해진 파일안에 데이터를 삭제한다.
         /// <see cref="FolderPath"/>.
         /// </summary>
-        /// <param name="key">The key to delete from the data store.</param>
+        /// <param name="key">삭제할 데이터의 key값</param>
         public Task DeleteAsync<T>(string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -75,12 +72,11 @@ namespace googlecloud1.login
         }
 
         /// <summary>
-        /// Returns the stored value for the given key or <c>null</c> if the matching file (<see cref="GenerateStoredKey"/>
-        /// in <see cref="FolderPath"/> doesn't exist.
+        /// 매개 변수로 넘어온 키값을 이용하여 파일안의 데이터를 가져온다
         /// </summary>
-        /// <typeparam name="T">The type to retrieve.</typeparam>
-        /// <param name="key">The key to retrieve from the data store.</param>
-        /// <returns>The stored object.</returns>
+        /// <typeparam name="T">가져올 데이터의 타입형식</typeparam>
+        /// <param name="key">가져올 데이터의 key값</param>
+        /// <returns>저장된 데이터를 반환</returns>
         public Task<T> GetAsync<T>(string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -110,7 +106,7 @@ namespace googlecloud1.login
         }
 
         /// <summary>
-        /// Clears all values in the data store. This method deletes all files in <see cref="FolderPath"/>.
+        /// 모든 파일안의 데이터를 전부 지운다
         /// </summary>
         public Task ClearAsync()
         {
@@ -123,9 +119,9 @@ namespace googlecloud1.login
             return TaskEx.Delay(0);
         }
 
-        /// <summary>Creates a unique stored key based on the key and the class type.</summary>
-        /// <param name="key">The object key.</param>
-        /// <param name="t">The type to store or retrieve.</param>
+        /// <summary>클래스 타입과 넘어온 key값을 이용하여 중복되지 않은 유니크한 key를 만든다</summary>
+        /// <param name="key">데이터의 key값.</param>
+        /// <param name="t">저장 타입</param>
         public static string GenerateStoredKey(string key, Type t)
         {
             return string.Format("{0}-{1}", t.FullName, key);
