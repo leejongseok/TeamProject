@@ -156,6 +156,7 @@ namespace googlecloud1.login
             Dictionary<string, string> urlParam = new Dictionary<string, string>();
             urlParam.Add("client_id", clientId);
             urlParam.Add("scope", GenerateScopeString(scopes));
+            //서버에서 되돌아오는 반환 uri 설정 인스톨 응용 프로그램은 urn:ietf:wg:oauth:2.0:oob
             urlParam.Add("redirect_uri", GoogleAuthConsts.InstalledAppRedirectUri);
             urlParam.Add("response_type", "code");
 

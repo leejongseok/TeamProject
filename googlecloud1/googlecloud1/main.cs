@@ -93,10 +93,7 @@ namespace googlecloud1
             {
                 foreach (var item in items)
                 {
-                    if((bool)item.OwnedByMe)
-                    {
-                        listBox1.Items.Add(item.Title);
-                    }
+                   listBox1.Items.Add(item.Title);
                 }
             }
         }
