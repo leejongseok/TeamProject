@@ -51,19 +51,12 @@ namespace googlecloud1
             IList<File> files = DaimtoGoogleDriveHelper.GetFiles(service, null);
             // Update the UI for loading something new
             ShowWork(true);
-            //LoadChildren(files);  // Clear the current folder view
+            //file.Parents.ToList();
+            LoadChildren(files);  // Clear the current folder view
             try
             {
-                if (null != files)
-                {
-                    foreach (var item in files)
-                    {
-
-                        listBox1.Items.Add(item.Title);
-                    }
-                }
-                FilesResource file = service.Files;
-                var selectedItem = await file.Get(id).ExecuteAsync();
+                //FilesResource file = service.Files;
+                //var selectedItem = await file.Get(id).ExecuteAsync();
                 //ProcessFolder(selectedItem);
             }
             catch
@@ -73,14 +66,37 @@ namespace googlecloud1
 
             ShowWork(false);
         }
+        //private void LoadChildren(FileList items, bool clearExistingItems = true)
+        //{
+        //    datacontent.SuspendLayout();
+
+        //    if (clearExistingItems)
+        //        datacontent.Controls.Clear();
+
+        //    // Load the children
+        //    if (null != items)
+        //    {
+        //        List<Control> newControls = new List<Control>();
+        //        foreach (var obj in items.Items)
+        //        {
+        //            //newControls.Add(CreateControlForChildObject(obj));
+        //        }
+        //        datacontent.Controls.AddRange(newControls.ToArray());
+        //    }
+
+        //    datacontent.ResumeLayout();
+        //}
+
         private void LoadChildren(IList<File> items, bool clearExistingItems = true)
         {
-            if(null != items)
+            if (null != items)
             {
                 foreach (var item in items)
                 {
-                    
-                    listBox1.Items.Add(item.Title);
+                    if((bool)item.OwnedByMe)
+                    {
+                        listBox1.Items.Add(item.Title);
+                    }
                 }
             }
         }
