@@ -59,7 +59,7 @@ namespace Daimto.Drive.api
                 DriveService service = new DriveService(new BaseClientService.Initializer()
                 {
                     HttpClientInitializer = credential,
-                    ApplicationName = "Daimto Drive API Sample",
+                    ApplicationName = "GoogleCloude Sample",
                 });
                 return service;
             }

@@ -57,7 +57,7 @@ namespace googlecloud1
 
         private void LoadThumbnail()
         {
-            var thumbnail = sourceItem.IconLink;
+            var thumbnail = sourceItem.ThumbnailLink;
             if (null != thumbnail)
             {
                 string thumbnailUri = thumbnail;
