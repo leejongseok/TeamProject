@@ -32,7 +32,7 @@ namespace Daimto.Drive.api
         }
 
 
-        private static string GetMimeType(string fileName)
+        public static string GetMimeType(string fileName)
         {
             string mimeType = "application/unknown";
             string ext = System.IO.Path.GetExtension(fileName).ToLower();

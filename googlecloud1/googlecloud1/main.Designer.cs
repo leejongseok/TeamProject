@@ -35,10 +35,9 @@
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.열기ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.로그인ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.downprogres = new System.Windows.Forms.ProgressBar();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.label1 = new System.Windows.Forms.Label();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.downflowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -89,50 +88,37 @@
             this.로그인ToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.로그인ToolStripMenuItem.Text = "로그인";
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 24);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1062, 24);
-            this.flowLayoutPanel1.TabIndex = 5;
-            // 
-            // downprogres
-            // 
-            this.downprogres.Location = new System.Drawing.Point(881, 628);
-            this.downprogres.Name = "downprogres";
-            this.downprogres.Size = new System.Drawing.Size(181, 23);
-            this.downprogres.TabIndex = 0;
-            this.downprogres.Visible = false;
-            this.downprogres.Click += new System.EventHandler(this.downprogres_Click);
-            // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
-            // label1
+            // flowLayoutPanel1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("굴림", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label1.Location = new System.Drawing.Point(757, 632);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(118, 19);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "다운로드(%)";
-            this.label1.Visible = false;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 27);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1062, 21);
+            this.flowLayoutPanel1.TabIndex = 5;
+            // 
+            // downflowPanel
+            // 
+            this.downflowPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.downflowPanel.Location = new System.Drawing.Point(0, 628);
+            this.downflowPanel.Name = "downflowPanel";
+            this.downflowPanel.Size = new System.Drawing.Size(1062, 37);
+            this.downflowPanel.TabIndex = 8;
             // 
             // main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1062, 663);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.downprogres);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.flowLayoutPanel_filecontent);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.menuStrip2);
+            this.Controls.Add(this.downflowPanel);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "main";
             this.Text = "Form1";
@@ -153,10 +139,9 @@
         private System.Windows.Forms.MenuStrip menuStrip2;
         private System.Windows.Forms.ToolStripMenuItem 열기ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 로그인ToolStripMenuItem;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.ProgressBar downprogres;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.FlowLayoutPanel downflowPanel;
     }
 }
 

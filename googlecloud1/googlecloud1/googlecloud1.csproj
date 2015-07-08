@@ -107,7 +107,7 @@
   <ItemGroup>
     <Compile Include="auth\Authentication.cs" />
     <Compile Include="auth\DaimtoGoogleDriveHelper.cs" />
-    <Compile Include="Download\Download.cs" />
+    <Compile Include="FileUpDown\Download.cs" />
     <Compile Include="DriveObjectBrowser.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -120,6 +120,7 @@
     <Compile Include="FileTile.Designer.cs">
       <DependentUpon>FileTile.cs</DependentUpon>
     </Compile>
+    <Compile Include="FileUpDown\Upload.cs" />
     <Compile Include="login\FileDataStore.cs" />
     <Compile Include="login\googleauth.cs" />
     <Compile Include="login\GoogleWebAuthorizationBroker.cs" />

@@ -17,16 +17,22 @@ using Google.Apis.Requests;
 using Google.Apis.Download;
 using Google.Apis.Http;
 using System.Net;
+using googlecloud1.FileUpDown;
 namespace googlecloud1
 {
     public partial class main : Form
     {
-        private delegate void CSafeSetValue(object sender, long maxsize, long Downloaded);
+        // delegate 대리자 사용 Cross Thread 문제를 방지하기 위해 설정
+        private delegate void CSafeSetValue(object sender, long maxsize, long Downloaded, ProgressBar progress);
+        private delegate void CSafeComplete(object sender, ProgressBar progress);
+        private delegate void CSafeControl(object sender, ProgressBar progress, Label label);
         Download down;
         WebClient webclient;
         DriveService service;
         File file { get; set; }
         private CSafeSetValue cssv;
+        private CSafeComplete cscp;
+        private CSafeControl csct;
         private File SelectedItem { get; set; }
         public main()
         {
@@ -37,26 +43,38 @@ namespace googlecloud1
         private async void main_Load(object sender, EventArgs e)
         {
             cssv = new CSafeSetValue(webclient_UploadProgressChanged);
+            cscp = new CSafeComplete(webclient_DownloadFileCompleted);
+            csct = new CSafeControl(down_StreamControlCallBack);
             await Signin();
         }
 
-        private void webclient_DownloadFileCompleted(object sender)
+        private void webclient_DownloadFileCompleted(object sender, ProgressBar progress)
         {
-            MessageBox.Show("다운 완료");
-            downprogres.Visible = false;
-            label1.Visible = false;
-            down.Stop();
+            if(progress.InvokeRequired)
+            {
+                progress.Invoke(cscp, new object[] { sender, progress });
+            }
+            else
+            {
+                MessageBox.Show("다운 완료");
+                int index = downflowPanel.Controls.IndexOf(progress);
+                downflowPanel.Controls.RemoveAt(index);
+                down.Stop();
+            }
         }
 
-        private void webclient_UploadProgressChanged(object sender, long maxsize, long Downloaded)
+        private void webclient_UploadProgressChanged(object sender, long maxsize, long Downloaded, ProgressBar progress)
         {
-            if(downprogres.InvokeRequired)
+            if(progress.InvokeRequired)
             {
-                downprogres.Invoke(cssv, new object[] { sender, maxsize, Downloaded });
+                progress.Invoke(cssv, new object[] { sender, maxsize, Downloaded, progress });
             }
-            float per = ((float)Downloaded / maxsize) * 100;
-            downprogres.Value = (int)per;
-            label1.Text
+            else
+            {
+                float per = ((float)Downloaded / maxsize) * 100;
+                progress.Value = (int)per;
+                progress.Controls[0].Text = string.Format("{0}%", (int)per);
+            }
         }
         /// <summary>
         /// 드라이브 정보를 받아옴
@@ -67,6 +85,7 @@ namespace googlecloud1
             service = Authentication.AuthenticateOauth("892886432316-smcv78utjgpp1iec18v67amr2gigv24m.apps.googleusercontent.com", "eyOFpG-LFIfp8ad3usTL81LG", "bit12");
             if(service != null)
             {
+               
                 await LoadFolderFromId("root");
             }
         }
@@ -81,13 +100,16 @@ namespace googlecloud1
 
             //프로그래스바를 진행시킨다.
             ShowWork(true);
-            //file.Parents.ToList();
-           
             LoadChildren(null);  // 폴더 뷰를 비운다.
+
             try
             {
                 FilesResource file = new FilesResource(service);
                 var selectedItem = await file.Get(id).ExecuteAsync();
+                if(id == "root")
+                {
+                    FixBreadCrumbForCurrentFolder(selectedItem);
+                }
                 ProcessFolder(selectedItem);
             }
             catch
@@ -97,38 +119,7 @@ namespace googlecloud1
 
             ShowWork(false);
         }
-        //private void LoadChildren(FileList items, bool clearExistingItems = true)
-        //{
-        //    datacontent.SuspendLayout();
-
-        //    if (clearExistingItems)
-        //        datacontent.Controls.Clear();
-
-        //    // Load the children
-        //    if (null != items)
-        //    {
-        //        List<Control> newControls = new List<Control>();
-        //        foreach (var obj in items.Items)
-        //        {
-        //            //newControls.Add(CreateControlForChildObject(obj));
-        //        }
-        //        datacontent.Controls.AddRange(newControls.ToArray());
-        //    }
-
-        //    datacontent.ResumeLayout();
-        //}
-
-        //private void LoadChildren(IList<File> items, bool clearExistingItems = true)
-        //{
-        //    if (null != items)
-        //    {
-        //        foreach (var item in items)
-        //        {
-        //           listBox1.Items.Add(item.Title);
-        //        }
-        //    }
-        //}
-        private async void ProcessFolder(File folder)
+        private void ProcessFolder(File folder)
         {
             //폴더가 널이 아니면
             if (null != folder)
@@ -139,17 +130,10 @@ namespace googlecloud1
                 //LoadProperties(folder);
                 // 쿼리문을 보내 검색되어진 파일을 가져온다.
                 IList<File> file = DaimtoGoogleDriveHelper.GetFiles(service, query);
-
                 if(file.Count != 0)
                 {
                     LoadChildren(file, false);
                 }
-
-                //while (pagedItemCollection.MoreItemsAvailable())
-                //{
-                    //pagedItemCollection = await pagedItemCollection.GetNextPage(Connection);
-                    //LoadChildren(pagedItemCollection, false);
-                //}
             }
         }
 
@@ -223,7 +207,7 @@ namespace googlecloud1
             {
                 try
                 {
-                    await DownloadAndSaveItem(item);
+                    DownloadAndSaveItem(item);
                 }
                 catch
                 {
@@ -232,7 +216,7 @@ namespace googlecloud1
             }
         }
 
-        private async Task DownloadAndSaveItem(File item)
+        private void DownloadAndSaveItem(File item)
         {
             if(!string.IsNullOrEmpty(item.DownloadUrl))
             {
@@ -244,38 +228,89 @@ namespace googlecloud1
                 {
                     return;
                 }
-                downprogres.Visible = true;
-                label1.Visible = true;
                 down = new FileDownload(dialog.FileName, item.DownloadUrl, service, item.FileSize);
                 down.StreamCompleteCallback += webclient_DownloadFileCompleted;
                 down.StreamProgressCallback += webclient_UploadProgressChanged;
+                down.StreamControlCallBack += down_StreamControlCallBack;
                 down.Start();
             }
         }
 
+        void down_StreamControlCallBack(object sender, ProgressBar progress, Label label)
+        {
+            if(downflowPanel.InvokeRequired)
+            {
+                downflowPanel.Invoke(csct, new object[] { sender, progress, label });
+            }
+            else
+            {
+                downflowPanel.Controls.Add(progress);
+            }
+        }
+        private void DownLoadProgressBar(Download downcontrol)
+        {
+        }
         private async void NavigateToItemWithChildren(File item)
         {
-            //FixBreadCrumbForCurrentFolder(folder);
+            FixBreadCrumbForCurrentFolder(item);
             await LoadFolderFromId(item.Id);
         }
+        private void FixBreadCrumbForCurrentFolder(File folder)
+        {
+            var breadcrumbs = flowLayoutPanel1.Controls;
+            bool existingCrumb = false;
+            foreach (LinkLabel crumb in breadcrumbs)
+            {
+                if (crumb.Tag == folder)
+                {
+                    RemoveDeeperBreadcrumbs(crumb);
+                    existingCrumb = true;
+                    break;
+                }
+            }
 
+            if (!existingCrumb)
+            {
+                LinkLabel label = new LinkLabel();
+                label.Text = "->" + folder.Title;
+                label.LinkArea = new LinkArea(2, folder.Title.Length);
+                label.LinkClicked += linkLabelBreadcrumb_LinkClicked;
+                label.AutoSize = true;
+                label.Tag = folder;
+                flowLayoutPanel1.Controls.Add(label);
+            }
+        }
+
+        private void RemoveDeeperBreadcrumbs(LinkLabel crumb)
+        {
+            var breadcrumbs = flowLayoutPanel1.Controls;
+            int indexOfControl = breadcrumbs.IndexOf(crumb);
+            for (int i = breadcrumbs.Count - 1; i > indexOfControl; i--)
+            {
+                breadcrumbs.RemoveAt(i);
+            }
+        }
+
+        private void linkLabelBreadcrumb_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            LinkLabel link = (LinkLabel)sender;
+
+            RemoveDeeperBreadcrumbs(link);
+
+            File item = link.Tag as File;
+            if (null == item)
+            {
+
+                Task t = LoadFolderFromId("root");
+            }
+            else
+            {
+                Task t = LoadFolderFromId(item.Id);
+            }
+        }
         private void ChildObject_Click(object sender, EventArgs e)
         {
             
         }
-
-        private void downprogres_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        //private Control CreateControlForChildObject(File item)
-        //{
-        //    FileTile tile = new FileTile { SourceItem = item, Connection = this.Connection };
-        //    tile.Click += ChildObject_Click;
-        //    tile.DoubleClick += ChildObject_DoubleClick;
-        //    tile.Name = item.Id;
-        //    return tile;
-        //}
     }
 }

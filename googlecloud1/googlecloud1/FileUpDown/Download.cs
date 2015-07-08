@@ -12,16 +12,21 @@ using System.Windows.Forms;
 using Daimto.Drive.api;
 using Google.Apis.Drive.v2;
 using System.Threading.Tasks;
-namespace googlecloud1
+namespace googlecloud1.FileUpDown
 {
-    public delegate void StreamComplete(object sender);
-    public delegate void StreamProgress(object sender, long maxsize, long Downloaded);
+
+    public delegate void StreamComplete(object sender, ProgressBar progress);
+    public delegate void StreamProgress(object sender, long maxsize, long Downloaded, ProgressBar progress);
+    public delegate void StreamControl(object sender, ProgressBar progress, Label label);
     abstract class Download
     {
         public Stream stream;
         public Thread thread;
+        public ProgressBar progress;
+        public Label label;
         public event StreamComplete StreamCompleteCallback;
         public event StreamProgress StreamProgressCallback;
+        public event StreamControl StreamControlCallBack;
         public DriveService service;
         public string uri = "";
         public int State = 0;
@@ -35,17 +40,21 @@ namespace googlecloud1
         {
             thread = new Thread(new ThreadStart(this.StreamThread));
         }
-
-        protected void OnComplete(object sender)
+        protected void OnControl(object sender, ProgressBar progressbar, Label label)
+        {
+            if (this.StreamControlCallBack != null)
+                this.StreamControlCallBack(sender, progress, label);
+        }
+        protected void OnComplete(object sender, ProgressBar progress)
         {
             if(this.StreamCompleteCallback != null)
-                this.StreamCompleteCallback(sender);
+                this.StreamCompleteCallback(sender, progress);
         }
 
-        protected void OnProgressChange(object sender, long maxsize, long Downloaded)
+        protected void OnProgressChange(object sender, long maxsize, long Downloaded, ProgressBar progress)
         {
             if(this.StreamProgressCallback != null)
-                this.StreamProgressCallback(sender,maxsize, Downloaded);
+                this.StreamProgressCallback(sender,maxsize, Downloaded, progress);
         }
 
         protected abstract void StreamThread();
@@ -75,6 +84,8 @@ namespace googlecloud1
                 this.uri = uri;
                 this.service = service;
                 this.maxsize = (long)maxsize;
+                this.progress = new ProgressBar();
+                this.label = new Label();
             }
             
         }
@@ -92,18 +103,26 @@ namespace googlecloud1
 
             int ReadSize = 0;
             long Contentlong = 0;
+            label.Text = "0%";
+            label.Name = "label";
+            label.AutoSize = true;
+            progress.Value = 0;
+            progress.Maximum = 100;
+            progress.Controls.Add(label);
+            progress.Size = new System.Drawing.Size(181, 23);
             if(File.Exists(this.filename))
                 File.Delete(this.filename);
             this.file = File.Create(this.filename);
+            this.OnControl(this, progress, label);
             MemoryStream mstream = new MemoryStream();
             byte[] buf = new byte[this.StreamBlockSize];
                 try
                 {
-                    while ((ReadSize = await stream.ReadAsync(buf, 0, this.StreamBlockSize)) > 0)
+                    while ((ReadSize = await stream.ReadAsync(buf, 0, this.StreamBlockSize, CancellationToken.None)) > 0)
                     {
                         Contentlong += ReadSize;
                         this.SaveToFile(this.filename, buf, ReadSize);
-                        this.OnProgressChange(this, maxsize, Contentlong);
+                        this.OnProgressChange(this, maxsize, Contentlong, this.progress);
                     }
                 }
                 catch(Exception e)
@@ -112,13 +131,14 @@ namespace googlecloud1
                     pa = e.InnerException;    
                 }
             this.stream.Close();
-            this.OnComplete(this);
+            file.Close();
+            this.OnComplete(this, progress);
         }
         private async void SaveToFile(string filename, byte[] Data, int Size)
         {
             try
             {
-                await file.WriteAsync(Data, 0, Size);
+                await file.WriteAsync(Data, 0, Size, CancellationToken.None);
             }
             catch
             {
@@ -134,7 +154,6 @@ namespace googlecloud1
     }
     class FilePath
     {
-        string path = "";
         public static string GetPath(string filename)
         {
             if(filename != null)
