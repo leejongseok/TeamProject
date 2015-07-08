@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Google.Apis.Drive.v2;
 using Google.Apis.Drive.v2.Data;
 using System.Threading.Tasks;
+using Google.Apis.Download;
 namespace Daimto.Drive.api
 {
     public class DaimtoGoogleDriveHelper
@@ -16,15 +17,10 @@ namespace Daimto.Drive.api
         /// <param name="_fileResource">File resource of the file to download</param>
         /// <param name="_saveTo">location of where to save the file including the file name to save it as.</param>
         /// <returns></returns>
-        public async static Task<Boolean> downloadFile(DriveService _service, File _fileResource, string _saveTo)
+        public static Boolean downloadFile(byte[] arrBytes, string _saveTo)
         {
-
-            if (!String.IsNullOrEmpty(_fileResource.DownloadUrl))
-            {
                 try
                 {
-                    var x = _service.HttpClient.GetByteArrayAsync(_fileResource.DownloadUrl );
-                    byte[] arrBytes = x.Result;
                     System.IO.File.WriteAllBytes(_saveTo, arrBytes);
                     return true;                  
                 }
@@ -33,12 +29,6 @@ namespace Daimto.Drive.api
                     Console.WriteLine("An error occurred: " + e.Message);
                     return false;
                 }
-            }
-            else
-            {
-                // The file doesn't have any content stored on Drive.
-                return false;
-            }
         }
 
 
@@ -91,7 +81,6 @@ namespace Daimto.Drive.api
                 Console.WriteLine("File does not exist: " + _uploadFile);
                 return null;
             }           
-        
         }
 
         /// <summary>
@@ -230,7 +219,5 @@ namespace Daimto.Drive.api
             }
             return Files;
         }
-
-
     }
 }

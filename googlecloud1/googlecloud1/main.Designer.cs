@@ -28,13 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.flowLayoutPanel_filecontent = new System.Windows.Forms.FlowLayoutPanel();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.열기ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.로그인ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.downprogres = new System.Windows.Forms.ProgressBar();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,10 +60,9 @@
             // 
             // flowLayoutPanel_filecontent
             // 
-            this.flowLayoutPanel_filecontent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel_filecontent.Location = new System.Drawing.Point(0, 48);
+            this.flowLayoutPanel_filecontent.Location = new System.Drawing.Point(0, 51);
             this.flowLayoutPanel_filecontent.Name = "flowLayoutPanel_filecontent";
-            this.flowLayoutPanel_filecontent.Size = new System.Drawing.Size(1062, 615);
+            this.flowLayoutPanel_filecontent.Size = new System.Drawing.Size(1062, 571);
             this.flowLayoutPanel_filecontent.TabIndex = 3;
             // 
             // menuStrip2
@@ -72,13 +75,6 @@
             this.menuStrip2.TabIndex = 4;
             this.menuStrip2.Text = "menuStrip2";
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 24);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1062, 24);
-            this.flowLayoutPanel1.TabIndex = 5;
-            // 
             // 열기ToolStripMenuItem
             // 
             this.열기ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -90,14 +86,48 @@
             // 로그인ToolStripMenuItem
             // 
             this.로그인ToolStripMenuItem.Name = "로그인ToolStripMenuItem";
-            this.로그인ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.로그인ToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.로그인ToolStripMenuItem.Text = "로그인";
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 24);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1062, 24);
+            this.flowLayoutPanel1.TabIndex = 5;
+            // 
+            // downprogres
+            // 
+            this.downprogres.Location = new System.Drawing.Point(881, 628);
+            this.downprogres.Name = "downprogres";
+            this.downprogres.Size = new System.Drawing.Size(181, 23);
+            this.downprogres.TabIndex = 0;
+            this.downprogres.Visible = false;
+            this.downprogres.Click += new System.EventHandler(this.downprogres_Click);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("굴림", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label1.Location = new System.Drawing.Point(757, 632);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(118, 19);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "다운로드(%)";
+            this.label1.Visible = false;
             // 
             // main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1062, 663);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.downprogres);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.flowLayoutPanel_filecontent);
             this.Controls.Add(this.progressBar1);
@@ -124,6 +154,9 @@
         private System.Windows.Forms.ToolStripMenuItem 열기ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 로그인ToolStripMenuItem;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.ProgressBar downprogres;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.Label label1;
     }
 }
 

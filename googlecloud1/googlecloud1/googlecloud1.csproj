@@ -107,6 +107,7 @@
   <ItemGroup>
     <Compile Include="auth\Authentication.cs" />
     <Compile Include="auth\DaimtoGoogleDriveHelper.cs" />
+    <Compile Include="Download.cs" />
     <Compile Include="DriveObjectBrowser.cs">
       <SubType>UserControl</SubType>
     </Compile>
