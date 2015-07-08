@@ -56,6 +56,7 @@ namespace googlecloud1
             }
             float per = ((float)Downloaded / maxsize) * 100;
             downprogres.Value = (int)per;
+            label1.Text
         }
         /// <summary>
         /// 드라이브 정보를 받아옴
