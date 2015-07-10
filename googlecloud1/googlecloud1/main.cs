@@ -237,10 +237,15 @@ namespace googlecloud1
             RemoveDeeperBreadcrumbs(link);
 
             string id = (string)link.Tag;
+            flowLayoutPanel_filecontent.Controls.Clear();
             if (null == id)
             {
-
+                item = new GoogleFile(service);
                 Task t = LoadFolderFromId("root");
+                if(connection != null)
+                {
+                    item = new OneDriveFile(connection);
+                }
             }
             else
             {
