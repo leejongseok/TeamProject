@@ -12,23 +12,22 @@ using Daimto.Drive.api;
 using Google.Apis.Drive.v2;
 using Google.Apis.Drive.v2.Data;
 using System.Threading.Tasks;
-using Daimto.Drive.api;
 namespace googlecloud1.FileUpDown
 {
-    public delegate void StreamComplete(object sender, ProgressBar progress);
-    public delegate void StreamProgress(object sender, long maxsize, long Downloaded, ProgressBar progress);
-    public delegate void StreamControl(object sender, ProgressBar progress, Label label);
     class FileUpload : Download
     {
         DriveService service;
         string Parent;
         System.IO.FileStream realfile;
-        public FileUpload(DriveService service, string file, string parent, System.IO.FileStream realfile)
+        public FileUpload(DriveService service, string file, string parent, System.IO.FileStream realfile, long MaxSize)
         {
             this.service = service;
             this.filename = file;
             this.Parent = parent;
             this.realfile = realfile;
+            this.maxsize = MaxSize;
+            this.progress = new ProgressBar();
+            this.label = new Label();
         }
     
         protected override async void StreamThread()
@@ -49,6 +48,7 @@ namespace googlecloud1.FileUpDown
                 body.MimeType = DaimtoGoogleDriveHelper.GetMimeType(this.filename);
                 body.Parents = new List<ParentReference>() { new ParentReference() { Id = this.Parent } };
                 FilesResource.InsertMediaUpload request = null;
+                this.OnControl(this, progress, label);
                 byte[] byteArray = new byte[this.StreamBlockSize];
                 int ReadSize = 0;
                 System.IO.MemoryStream mstream = new System.IO.MemoryStream();
@@ -62,16 +62,19 @@ namespace googlecloud1.FileUpDown
                         this.OnProgressChange(this, maxsize, contentlong, this.progress);
                     }
                     request.Upload();
+                    realfile.Close();
+                    mstream.Close();
+                    this.OnComplete(this, progress);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("An error occurred: " + e.Message);
+                    MessageBox.Show("오류: " + e.Message);
                     return;
                 }
             }
             else
             {
-                Console.WriteLine("File does not exist: " + this.filename);
+                MessageBox.Show("파일이 존재하지 않습니다: " + this.filename);
                 return;
             }           
         }

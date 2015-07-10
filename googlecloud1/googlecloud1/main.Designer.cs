@@ -35,9 +35,12 @@
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.열기ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.로그인ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.파일업로드ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.downflowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.uploadflowpanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.원드라이브로그인ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -59,9 +62,10 @@
             // 
             // flowLayoutPanel_filecontent
             // 
+            this.flowLayoutPanel_filecontent.AutoScroll = true;
             this.flowLayoutPanel_filecontent.Location = new System.Drawing.Point(0, 51);
             this.flowLayoutPanel_filecontent.Name = "flowLayoutPanel_filecontent";
-            this.flowLayoutPanel_filecontent.Size = new System.Drawing.Size(1062, 571);
+            this.flowLayoutPanel_filecontent.Size = new System.Drawing.Size(1062, 521);
             this.flowLayoutPanel_filecontent.TabIndex = 3;
             // 
             // menuStrip2
@@ -77,7 +81,9 @@
             // 열기ToolStripMenuItem
             // 
             this.열기ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.로그인ToolStripMenuItem});
+            this.로그인ToolStripMenuItem,
+            this.파일업로드ToolStripMenuItem,
+            this.원드라이브로그인ToolStripMenuItem});
             this.열기ToolStripMenuItem.Name = "열기ToolStripMenuItem";
             this.열기ToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.열기ToolStripMenuItem.Text = "열기";
@@ -85,8 +91,15 @@
             // 로그인ToolStripMenuItem
             // 
             this.로그인ToolStripMenuItem.Name = "로그인ToolStripMenuItem";
-            this.로그인ToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.로그인ToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.로그인ToolStripMenuItem.Text = "로그인";
+            // 
+            // 파일업로드ToolStripMenuItem
+            // 
+            this.파일업로드ToolStripMenuItem.Name = "파일업로드ToolStripMenuItem";
+            this.파일업로드ToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.파일업로드ToolStripMenuItem.Text = "파일 업로드";
+            this.파일업로드ToolStripMenuItem.Click += new System.EventHandler(this.파일업로드ToolStripMenuItem_Click);
             // 
             // contextMenuStrip1
             // 
@@ -108,11 +121,26 @@
             this.downflowPanel.Size = new System.Drawing.Size(1062, 37);
             this.downflowPanel.TabIndex = 8;
             // 
+            // uploadflowpanel
+            // 
+            this.uploadflowpanel.Location = new System.Drawing.Point(0, 578);
+            this.uploadflowpanel.Name = "uploadflowpanel";
+            this.uploadflowpanel.Size = new System.Drawing.Size(1062, 44);
+            this.uploadflowpanel.TabIndex = 0;
+            // 
+            // 원드라이브로그인ToolStripMenuItem
+            // 
+            this.원드라이브로그인ToolStripMenuItem.Name = "원드라이브로그인ToolStripMenuItem";
+            this.원드라이브로그인ToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.원드라이브로그인ToolStripMenuItem.Text = "원드라이브 로그인";
+            this.원드라이브로그인ToolStripMenuItem.Click += new System.EventHandler(this.원드라이브로그인ToolStripMenuItem_Click);
+            // 
             // main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1062, 663);
+            this.Controls.Add(this.uploadflowpanel);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.flowLayoutPanel_filecontent);
             this.Controls.Add(this.progressBar1);
@@ -142,6 +170,9 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.FlowLayoutPanel downflowPanel;
+        private System.Windows.Forms.ToolStripMenuItem 파일업로드ToolStripMenuItem;
+        private System.Windows.Forms.FlowLayoutPanel uploadflowpanel;
+        private System.Windows.Forms.ToolStripMenuItem 원드라이브로그인ToolStripMenuItem;
     }
 }
 

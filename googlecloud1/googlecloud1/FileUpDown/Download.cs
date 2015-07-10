@@ -27,8 +27,6 @@ namespace googlecloud1.FileUpDown
         public event StreamComplete StreamCompleteCallback;
         public event StreamProgress StreamProgressCallback;
         public event StreamControl StreamControlCallBack;
-        public DriveService service;
-        public string uri = "";
         public int State = 0;
         public int StreamBlockSize = 64000;
         public long maxsize = 0;
@@ -64,7 +62,8 @@ namespace googlecloud1.FileUpDown
     class FileDownload : Download
     {
         private FileStream file;
-        public FileDownload(string path, string uri, DriveService service, long? maxsize)
+        private Stream stream;
+        public FileDownload(string path, Stream stream, long? maxsize)
         {
             try
             {
@@ -81,8 +80,7 @@ namespace googlecloud1.FileUpDown
             finally
             {
                 this.filename = path;
-                this.uri = uri;
-                this.service = service;
+                this.stream = stream;
                 this.maxsize = (long)maxsize;
                 this.progress = new ProgressBar();
                 this.label = new Label();
@@ -99,8 +97,6 @@ namespace googlecloud1.FileUpDown
         }
         protected override async void StreamThread()
         {
-            stream = await service.HttpClient.GetStreamAsync(uri);
-
             int ReadSize = 0;
             long Contentlong = 0;
             label.Text = "0%";

@@ -13,16 +13,19 @@ namespace googlecloud1
 {
     public partial class FileTile : UserControl
     {
-         private File sourceItem;
-        private DriveService connection;
+         private string sourceitem;
+        private string connection;
         private bool _selected;
 
-        public FileTile()
+        public FileTile(string name, string connection)
         {
             InitializeComponent();
+            this.sourceitem = name;
+            this.connection = connection;
+            this.SourceItemChanged();
         }
 
-        public DriveService Connection
+        public string Connection
         {
             get { return connection; }
             set
@@ -33,31 +36,31 @@ namespace googlecloud1
                 SourceItemChanged();
             }
         }
-        public File SourceItem
+        public string sourceitem1
         {
-            get { return sourceItem; }
+            get { return sourceitem; }
             set
             {
-                if (value == sourceItem)
+                if (value == sourceitem)
                     return;
 
-                sourceItem = value;
+                sourceitem = value;
                 SourceItemChanged();
             }
         }
 
         private void SourceItemChanged()
         {
-            if (null == SourceItem || null == Connection) return;
+            if (null == sourceitem) return;
 
-            this.filename.Text = SourceItem.Title;
+            this.filename.Text = sourceitem;
 
             LoadThumbnail();
         }
 
         private void LoadThumbnail()
         {
-            var thumbnail = sourceItem.ThumbnailLink;
+            var thumbnail = connection;
             if (null != thumbnail)
             {
                 string thumbnailUri = thumbnail;
