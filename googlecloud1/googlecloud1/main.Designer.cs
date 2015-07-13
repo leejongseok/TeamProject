@@ -35,13 +35,15 @@
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.열기ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.로그인ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.파일업로드ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.downflowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.uploadflowpanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.원드라이브로그인ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.연결ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.다운로드ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip2.SuspendLayout();
+            this.contextMenuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -59,6 +61,7 @@
             this.progressBar1.Size = new System.Drawing.Size(209, 24);
             this.progressBar1.TabIndex = 2;
             this.progressBar1.Value = 100;
+            this.progressBar1.Visible = false;
             // 
             // flowLayoutPanel_filecontent
             // 
@@ -82,8 +85,7 @@
             // 
             this.열기ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.로그인ToolStripMenuItem,
-            this.파일업로드ToolStripMenuItem,
-            this.원드라이브로그인ToolStripMenuItem});
+            this.연결ToolStripMenuItem});
             this.열기ToolStripMenuItem.Name = "열기ToolStripMenuItem";
             this.열기ToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.열기ToolStripMenuItem.Text = "열기";
@@ -91,15 +93,9 @@
             // 로그인ToolStripMenuItem
             // 
             this.로그인ToolStripMenuItem.Name = "로그인ToolStripMenuItem";
-            this.로그인ToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.로그인ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.로그인ToolStripMenuItem.Text = "로그인";
-            // 
-            // 파일업로드ToolStripMenuItem
-            // 
-            this.파일업로드ToolStripMenuItem.Name = "파일업로드ToolStripMenuItem";
-            this.파일업로드ToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
-            this.파일업로드ToolStripMenuItem.Text = "파일 업로드";
-            this.파일업로드ToolStripMenuItem.Click += new System.EventHandler(this.파일업로드ToolStripMenuItem_Click);
+            this.로그인ToolStripMenuItem.Click += new System.EventHandler(this.로그인ToolStripMenuItem_Click);
             // 
             // contextMenuStrip1
             // 
@@ -128,12 +124,25 @@
             this.uploadflowpanel.Size = new System.Drawing.Size(1062, 44);
             this.uploadflowpanel.TabIndex = 0;
             // 
-            // 원드라이브로그인ToolStripMenuItem
+            // 연결ToolStripMenuItem
             // 
-            this.원드라이브로그인ToolStripMenuItem.Name = "원드라이브로그인ToolStripMenuItem";
-            this.원드라이브로그인ToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
-            this.원드라이브로그인ToolStripMenuItem.Text = "원드라이브 로그인";
-            this.원드라이브로그인ToolStripMenuItem.Click += new System.EventHandler(this.원드라이브로그인ToolStripMenuItem_Click);
+            this.연결ToolStripMenuItem.Name = "연결ToolStripMenuItem";
+            this.연결ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.연결ToolStripMenuItem.Text = "연결";
+            this.연결ToolStripMenuItem.Click += new System.EventHandler(this.연결ToolStripMenuItem_Click);
+            // 
+            // contextMenuStrip2
+            // 
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.다운로드ToolStripMenuItem});
+            this.contextMenuStrip2.Name = "contextMenuStrip2";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(123, 26);
+            // 
+            // 다운로드ToolStripMenuItem
+            // 
+            this.다운로드ToolStripMenuItem.Name = "다운로드ToolStripMenuItem";
+            this.다운로드ToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.다운로드ToolStripMenuItem.Text = "다운로드";
             // 
             // main
             // 
@@ -153,6 +162,7 @@
             this.Load += new System.EventHandler(this.main_Load);
             this.menuStrip2.ResumeLayout(false);
             this.menuStrip2.PerformLayout();
+            this.contextMenuStrip2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -170,9 +180,10 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.FlowLayoutPanel downflowPanel;
-        private System.Windows.Forms.ToolStripMenuItem 파일업로드ToolStripMenuItem;
         private System.Windows.Forms.FlowLayoutPanel uploadflowpanel;
-        private System.Windows.Forms.ToolStripMenuItem 원드라이브로그인ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 연결ToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
+        private System.Windows.Forms.ToolStripMenuItem 다운로드ToolStripMenuItem;
     }
 }
 

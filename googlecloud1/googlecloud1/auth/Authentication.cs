@@ -67,10 +67,7 @@ namespace Daimto.Drive.api
             }
             catch (Exception ex)
             {
-
-                Console.WriteLine(ex.InnerException);
                 return null;
-
             }
 
         }
@@ -130,7 +127,7 @@ namespace Daimto.Drive.api
     {
         private const string msa_client_id = "0000000044128B55";
         private const string msa_client_secret = "amw-eMF4Ps-jzDVv6qwL4scqp2iFI29l";
-        public static async Task<ODConnection> SignInToMicrosoftAccount(System.Windows.Forms.IWin32Window parentWindow, string userid, string path)
+        public static async Task<ODConnection> SignInToMicrosoftAccount(string userid, string path)
             {
                 FileDataStore datastore = new FileDataStore(path);
                 AppTokenResult oldRefreshToken = await LoadToken(datastore, userid, CancellationToken.None).ConfigureAwait(false);
@@ -142,27 +139,26 @@ namespace Daimto.Drive.api
 
                 if (null == appToken)
                 {
-                   appToken = await MicrosoftAccountOAuth.LoginAuthorizationCodeFlowAsync(msa_client_id,
-                        msa_client_secret,
-                        new[] { "wl.offline_access", "wl.basic", "wl.signin", "onedrive.readwrite" });
+                    string code = await loginform.GetAuthenticationToken(msa_client_id, new[] { "wl.offline_access", "wl.basic", "wl.signin", "onedrive.readwrite" }, userid, "https://login.live.com/oauth20_authorize.srf", "https://login.live.com/oauth20_desktop.srf", LoginOption.OneDrive);
+
+                    appToken = await OneDriveWebAuthorization.RedeemAuthorizationCodeAsync(msa_client_id, "https://login.live.com/oauth20_desktop.srf", msa_client_secret, code);
                 }                       
 
                 if (null != appToken)
                 {
-                    SaveRefreshToken(appToken.RefreshToken, datastore, userid);
+                    SaveRefreshToken(appToken, datastore, userid);
 
                     return new ODConnection("https://api.onedrive.com/v1.0", new OAuthTicket(appToken));
                 }
-
+             
                 return null;
             }
 
-        private static async void SaveRefreshToken(string refreshToken, FileDataStore datastore, string userid)
+        private static async void SaveRefreshToken(AppTokenResult AppToken, FileDataStore datastore, string userid)
         {
-            if (!string.IsNullOrEmpty(refreshToken))
+            if (AppToken != null)
             {
-                AppTokenResult settings = new AppTokenResult();
-                settings.RefreshToken = refreshToken;
+                AppTokenResult settings = AppToken;
                 await SaveToken(datastore, userid, settings, CancellationToken.None);
             }
         }

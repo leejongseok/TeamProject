@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net;
+using System.IO;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v2;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Google.Apis.Auth.OAuth2.Flows;
+using MicrosoftAccount.WindowsForms;
 namespace googlecloud1.login
 {
     class GoogleWebAuthorization : GoogleWebAuthorizationBroker
@@ -53,6 +56,67 @@ namespace googlecloud1.login
             // 토큰을 이용하여 사용자의 정보를 얻어와서 반환해준다.
             return await new googleauth(flow, new LocalServerCodeReceiver()).AuthorizeAsync
                 (user, taskCancellationToken).ConfigureAwait(false);
+        }
+    }
+    class OneDriveWebAuthorization
+    {
+        public static async Task<AppTokenResult> RedeemAuthorizationCodeAsync(string clientId, string redirectUrl, string clientSecret, string authCode)
+        {
+            QueryStringBuilder queryBuilder = new QueryStringBuilder();
+            queryBuilder.Add("client_id", clientId);
+            queryBuilder.Add("redirect_uri", redirectUrl);
+            queryBuilder.Add("client_secret", clientSecret);
+            queryBuilder.Add("code", authCode);
+            queryBuilder.Add("grant_type", "authorization_code");
+
+            return await PostToTokenEndPoint(queryBuilder);
+        }
+        private static async Task<AppTokenResult> PostToTokenEndPoint(QueryStringBuilder queryBuilder)
+        {
+            HttpWebRequest request = WebRequest.CreateHttp("https://login.live.com/oauth20_token.srf");
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            using (StreamWriter requestWriter = new StreamWriter(await request.GetRequestStreamAsync()))
+            {
+                await requestWriter.WriteAsync(queryBuilder.ToString());
+                await requestWriter.FlushAsync();
+            }
+
+            HttpWebResponse httpResponse;
+            try
+            {
+                var response = await request.GetResponseAsync();
+                httpResponse = response as HttpWebResponse;
+            }
+            catch (WebException webex)
+            {
+                httpResponse = webex.Response as HttpWebResponse;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            // TODO: better error handling
+
+            if (httpResponse == null)
+                return null;
+
+            if (httpResponse.StatusCode != HttpStatusCode.OK)
+            {
+                httpResponse.Dispose();
+                return null;
+            }
+
+            using (var responseBodyStreamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var responseBody = await responseBodyStreamReader.ReadToEndAsync();
+                var tokenResult = Newtonsoft.Json.JsonConvert.DeserializeObject<AppTokenResult>(responseBody);
+
+                httpResponse.Dispose();
+                return tokenResult;
+            }
         }
     }
 }

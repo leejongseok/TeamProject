@@ -10,14 +10,12 @@ using Newtonsoft.Json;
 using System.IO;
 namespace googlecloud1.Files
 {
-    public delegate void navigate(string id, string name);
-    public delegate void streamdown(Stream stream, string name, long maxsize);
     interface CloudFiles
     {
-        Task<List<Control>> GetFileTile(string id);
-        void NavigateToItemWithChildren(string id, string name);
-        void DownLoadToFileItem(Stream stream, string name, long maxsize);
-        event navigate streamNavigateToItemWithChildren;
-        event streamdown streamdownload;
+        FileTile SetTile();
+        string GetId();
+        bool DoubleClick();
+        Task<System.IO.Stream> GetSteam();
+        long GetFileSize();
     }
 }

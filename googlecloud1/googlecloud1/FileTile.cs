@@ -54,7 +54,7 @@ namespace googlecloud1
             if (null == sourceitem) return;
 
             this.filename.Text = sourceitem;
-
+           
             LoadThumbnail();
         }
 

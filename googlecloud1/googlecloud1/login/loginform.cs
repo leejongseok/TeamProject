@@ -12,22 +12,22 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 namespace googlecloud1.login
 {
+    public enum LoginOption { OneDrive, GoogleDrive };
     public partial class loginform : Form
     {
-        public const string OAuthDesktopEndPoint = GoogleAuthConsts.AuthorizationUrl;
-        public const string OAuthGoogleAAuthorizeService = GoogleAuthConsts.AuthorizationUrl;
-
         public string StartUrl { get; private set; }
         public string EndUrl { get; private set; }
         public string code { get; set; }
         public GoogleAuthorizationCodeFlow flow { get; set; }
-        public loginform(string startutl, string endurl, string userid)
+        LoginOption option;
+        public loginform(string startutl, string endurl, string userid, LoginOption option)
         {
            
             InitializeComponent();
 
             this.StartUrl = startutl;
             this.EndUrl = endurl;
+            this.option = option;
             this.FormClosing += FormGoogleLoginAuth_FormClosing;
         }
 
@@ -58,24 +58,36 @@ namespace googlecloud1.login
         {
             //System.Diagnostics.Debug.WriteLine("Navigated to: " + webBrowser1.Url.AbsoluteUri.ToString());
             // 브라우저의 html의 타이틀 값을 가져온다(이 타이틀에 code값이 적혀 있음)
-            this.Text = webBrowser1.Document.Title;
-
-            if (this.webBrowser1.Document.Title.StartsWith(EndUrl))
+            if(option == LoginOption.GoogleDrive)
             {
-                // 타이틀에 적혀 있는 값을 필요한 부분만 잘라서 code에 저장
-                this.code = AuthResult();
-                CloseWindow();
+                this.Text = webBrowser1.Document.Title;
+                if (this.webBrowser1.Document.Title.StartsWith(EndUrl))
+                {
+                    // 타이틀에 적혀 있는 값을 필요한 부분만 잘라서 code에 저장
+                    this.code = AuthResult(webBrowser1.Document.Title);
+                    CloseWindow();
+                }
+            }
+            else
+            {
+                if (this.webBrowser1.Url.AbsoluteUri.StartsWith(EndUrl))
+                {
+                    string[] querparams = webBrowser1.Url.Query.TrimStart('?').Split('&');
+                    int index = querparams[0].IndexOf('=');
+                    querparams[0] = querparams[0].Substring(index+1, (querparams[0].Length - index)-1);
+                    this.code = querparams[0];
+                    CloseWindow();
+                }
             }
         }
         /// <summary>
         /// 얻어온 html의 title에 적혀있는 code부분만 잘라내는 함수
         /// </summary>
         /// <returns></returns>
-        private string AuthResult()
+        private string AuthResult(string Text)
         {            
-            string text = webBrowser1.Url.AbsoluteUri;
-            string html;
-                html = webBrowser1.Document.Title;
+                string html;
+                html = Text;
                 int num1 = html.IndexOf("=");
                 html = html.Substring(num1 + 1, (html.Length - num1) - 1);
             return html;
@@ -103,13 +115,16 @@ namespace googlecloud1.login
         /// <param name="userid"> 유저를 구분하기 위한 유저의 이름 (닉네임)</param>
         /// <param name="owner"> 부모 뷰의 핸들 (설정하지 않으면 기본값 null)</param>
         /// <returns></returns>
-        public static async Task<string> GetAuthenticationToken(string clientId, IEnumerable<string> scopes, string userid, IWin32Window owner = null)
+        public static async Task<string> GetAuthenticationToken(string clientId, IEnumerable<string> scopes, string userid, string starturl, string endurl, LoginOption option, IWin32Window owner = null)
         {
-            string startUrl, completeUrl;
+            string startUrl = starturl;
+            string realurl = starturl;
+            string completeUrl = endurl;
+            string realendurl = endurl;
             // 클라이언트 id와 접근 권한 리스트를 가지고 시작 url의 매개변수를 구성한다.
-            GenerateUrlsForOAuth(clientId, scopes, out startUrl, out completeUrl);
+            GenerateUrlsForOAuth(clientId, scopes, out startUrl, out completeUrl, realurl, realendurl, option);
             // 만들어온 시작 url을 이용하여 로그인 폼을 새로 만든다.
-            loginform authForm = new loginform(startUrl, completeUrl, userid);
+            loginform authForm = new loginform(startUrl, completeUrl, userid, option);
             // 로그인 폼 화면을 띄워준다.
             DialogResult result = await authForm.ShowDialogAsync(owner);
             // 화면이 정상적으로 종료 되었을떄 실행
@@ -150,18 +165,26 @@ namespace googlecloud1.login
         /// <param name="scopes"></param>
         /// <param name="startUrl"></param>
         /// <param name="completeUrl"></param>
-        private static void GenerateUrlsForOAuth(string clientId, IEnumerable<string> scopes, out string startUrl, out string completeUrl)
+        private static void GenerateUrlsForOAuth(string clientId, IEnumerable<string> scopes, out string startUrl, out string completeUrl, string realurl, string realendurl, LoginOption option)
         {
             // 파라미터 사전
             Dictionary<string, string> urlParam = new Dictionary<string, string>();
             urlParam.Add("client_id", clientId);
             urlParam.Add("scope", GenerateScopeString(scopes));
             //서버에서 되돌아오는 반환 uri 설정 인스톨 응용 프로그램은 urn:ietf:wg:oauth:2.0:oob
-            urlParam.Add("redirect_uri", GoogleAuthConsts.InstalledAppRedirectUri);
+            urlParam.Add("redirect_uri", realendurl);
             urlParam.Add("response_type", "code");
-
-            startUrl = BuildUriWithParameters(OAuthGoogleAAuthorizeService, urlParam);
-            completeUrl = "Success";
+            if(option == LoginOption.GoogleDrive)
+            {
+                startUrl = BuildUriWithParameters(realurl, urlParam);
+                completeUrl = "Success";
+            }
+            else
+            {
+                urlParam.Add("display", "popup");
+                startUrl = BuildUriWithParameters(realurl, urlParam);
+                completeUrl = realendurl;
+            }
         }
         /// <summary>
         /// url 파라미터를 형식에 맞춰 url로 만들어준다
@@ -202,6 +225,11 @@ namespace googlecloud1.login
         }
 
         private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
         {
 
         }
