@@ -50,7 +50,7 @@ namespace googlecloud1.login
             // 로컬에 저장되어 있는 토큰이 없으면 실행
             if (token == null || (token.RefreshToken == null && token.IsExpired(flow.Clock)))
             {
-                var authorizationCode = await loginform.GetAuthenticationToken(flow.ClientSecrets.ClientId, flow. Scopes, userId, GoogleAuthConsts.AuthorizationUrl, GoogleAuthConsts.InstalledAppRedirectUri, LoginOption.GoogleDrive);
+                var authorizationCode = await loginform.GetAuthenticationToken(flow.ClientSecrets.ClientId, flow.Scopes, userId, GoogleAuthConsts.AuthorizationUrl, GoogleAuthConsts.InstalledAppRedirectUri, LoginOption.GoogleDrive);
                 if (string.IsNullOrEmpty(authorizationCode))
                     return null;
                 //Logger.Debug("Received \"{0}\" code", response.Code);

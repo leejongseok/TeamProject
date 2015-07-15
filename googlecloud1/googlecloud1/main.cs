@@ -63,6 +63,13 @@ namespace googlecloud1
                     await LoadOneDriveFile("root", item);
                 }
             }
+            if(Setting.dropbox != null)
+            {
+                foreach (var item in Setting.dropbox)
+                {
+                    await LoadDropBoxFile("root", item);
+                }
+            }
             foreach (var item in folder)
             {
                 LoadTile(item); 
@@ -196,6 +203,12 @@ namespace googlecloud1
             GoogleFolder google = new GoogleFolder(service);
             await google.AddFiles(id);
             folder.Add(google);
+        }
+        private async Task LoadDropBoxFile(string id, Daimto.Drive.api.Authentication.DropBoxLogin.TokenResult token)
+        {
+            DropBoxFolder drop = new DropBoxFolder(token);
+            await drop.AddFiles(id);
+            folder.Add(drop);
         }
         private void 연결ToolStripMenuItem_Click(object sender, EventArgs e)
         {

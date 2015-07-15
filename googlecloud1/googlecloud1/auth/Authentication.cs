@@ -25,6 +25,10 @@ using googlecloud1.login;
 using MicrosoftAccount.WindowsForms;
 using OneDrive;
 using System.Threading.Tasks;
+using Nemiro.OAuth;
+using Newtonsoft.Json;
+using Nemiro.OAuth.Extensions;
+using System.Collections.Specialized;
 namespace Daimto.Drive.api
 {
     public class Authentication
@@ -47,8 +51,6 @@ namespace Daimto.Drive.api
                                              DriveService.Scope.DriveMetadataReadonly,   // Google 드라이브에서 파일의 메타데이터 보기
                                              DriveService.Scope.DriveReadonly,   // Google 드라이브에서 파일 보기
                                              DriveService.Scope.DriveScripts };  // Google Apps Script 스크립트의 행동 변경
-
-
             try
             {
                 // 신규 유저 접근 권한을 받아오거나 혹은 저장되어 있는 (기본 위치 C:\Users\bit-user\AppData\Roaming\)에 토큰을 가지고 유저정보를 가져온다.
@@ -71,63 +73,11 @@ namespace Daimto.Drive.api
             }
 
         }
-
-        /// <summary>
-        /// Authenticating to Google using a Service account
-        /// Documentation: https://developers.google.com/accounts/docs/OAuth2#serviceaccount
-        /// </summary>
-        /// <param name="serviceAccountEmail">From Google Developer console https://console.developers.google.com</param>
-        /// <param name="keyFilePath">Location of the Service account key file downloaded from Google Developer console https://console.developers.google.com</param>
-        /// <returns></returns>
-        public static DriveService AuthenticateServiceAccount(string serviceAccountEmail, string keyFilePath)
+        public class OneDriveLogin
         {
-
-            // check the file exists
-            if (!File.Exists(keyFilePath))
-            {
-                Console.WriteLine("An Error occurred - Key file does not exist");
-                return null;
-            }
-
-            //Google Drive scopes Documentation:   https://developers.google.com/drive/web/scopes
-            string[] scopes = new string[] { DriveService.Scope.Drive,  // view and manage your files and documents
-                                             DriveService.Scope.DriveAppdata,  // view and manage its own configuration data
-                                             DriveService.Scope.DriveAppsReadonly,   // view your drive apps
-                                             DriveService.Scope.DriveFile,   // view and manage files created by this app
-                                             DriveService.Scope.DriveMetadataReadonly,   // view metadata for files
-                                             DriveService.Scope.DriveReadonly,   // view files and documents on your drive
-                                             DriveService.Scope.DriveScripts };  // modify your app scripts     
-
-            var certificate = new X509Certificate2(keyFilePath, "notasecret", X509KeyStorageFlags.Exportable);
-            try
-            {
-                ServiceAccountCredential credential = new ServiceAccountCredential(
-                    new ServiceAccountCredential.Initializer(serviceAccountEmail)
-                   {
-                       Scopes = scopes
-                   }.FromCertificate(certificate));
-
-                // Create the service.
-                DriveService service = new DriveService(new BaseClientService.Initializer()
-                {
-                    HttpClientInitializer = credential,
-                    ApplicationName = "Daimto Drive API Sample",
-                });
-                return service;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.InnerException);
-                return null;
-
-            }
-        }
-    }
-    public class OneDriveLogin
-    {
-        private const string msa_client_id = "0000000044128B55";
-        private const string msa_client_secret = "amw-eMF4Ps-jzDVv6qwL4scqp2iFI29l";
-        public static async Task<ODConnection> SignInToMicrosoftAccount(string userid, string path)
+            private const string msa_client_id = "0000000044128B55";
+            private const string msa_client_secret = "amw-eMF4Ps-jzDVv6qwL4scqp2iFI29l";
+            public static async Task<ODConnection> SignInToMicrosoftAccount(string userid, string path)
             {
                 FileDataStore datastore = new FileDataStore(path);
                 AppTokenResult oldRefreshToken = await LoadToken(datastore, userid, CancellationToken.None).ConfigureAwait(false);
@@ -142,7 +92,7 @@ namespace Daimto.Drive.api
                     string code = await loginform.GetAuthenticationToken(msa_client_id, new[] { "wl.offline_access", "wl.basic", "wl.signin", "onedrive.readwrite" }, userid, "https://login.live.com/oauth20_authorize.srf", "https://login.live.com/oauth20_desktop.srf", LoginOption.OneDrive);
 
                     appToken = await OneDriveWebAuthorization.RedeemAuthorizationCodeAsync(msa_client_id, "https://login.live.com/oauth20_desktop.srf", msa_client_secret, code);
-                }                       
+                }
 
                 if (null != appToken)
                 {
@@ -150,112 +100,196 @@ namespace Daimto.Drive.api
 
                     return new ODConnection("https://api.onedrive.com/v1.0", new OAuthTicket(appToken));
                 }
-             
+
                 return null;
             }
 
-        private static async void SaveRefreshToken(AppTokenResult AppToken, FileDataStore datastore, string userid)
-        {
-            if (AppToken != null)
+            private static async void SaveRefreshToken(AppTokenResult AppToken, FileDataStore datastore, string userid)
             {
-                AppTokenResult settings = AppToken;
-                await SaveToken(datastore, userid, settings, CancellationToken.None);
+                if (AppToken != null)
+                {
+                    AppTokenResult settings = AppToken;
+                    await SaveToken(datastore, userid, settings, CancellationToken.None);
+                }
             }
-        }
-        public static async Task<AppTokenResult> LoadToken(FileDataStore datastore, string userid, CancellationToken cancellation)
-        {
-            cancellation.ThrowIfCancellationRequested();
-            if (datastore != null)
+            public static async Task<AppTokenResult> LoadToken(FileDataStore datastore, string userid, CancellationToken cancellation)
             {
-                return await datastore.GetAsync<AppTokenResult>(userid).ConfigureAwait(false);
+                cancellation.ThrowIfCancellationRequested();
+                if (datastore != null)
+                {
+                    return await datastore.GetAsync<AppTokenResult>(userid).ConfigureAwait(false);
+                }
+                return null;
             }
-            return null;
-        }
-        public static async Task SaveToken(FileDataStore datastore, string userid, AppTokenResult token, CancellationToken cancellation)
-        {
-            cancellation.ThrowIfCancellationRequested();
-            if (datastore != null)
+            public static async Task SaveToken(FileDataStore datastore, string userid, AppTokenResult token, CancellationToken cancellation)
             {
-                await datastore.StoreAsync<AppTokenResult>(userid, token);
+                cancellation.ThrowIfCancellationRequested();
+                if (datastore != null)
+                {
+                    await datastore.StoreAsync<AppTokenResult>(userid, token);
+                }
             }
-        }
-        public static async Task DeleteToken(FileDataStore datastore, string userid, CancellationToken cancellation)
-        {
-            cancellation.ThrowIfCancellationRequested();
-            if (datastore != null)
+            public static async Task DeleteToken(FileDataStore datastore, string userid, CancellationToken cancellation)
             {
-                await datastore.DeleteAsync<AppTokenResult>(userid);
+                cancellation.ThrowIfCancellationRequested();
+                if (datastore != null)
+                {
+                    await datastore.DeleteAsync<AppTokenResult>(userid);
+                }
             }
-        }
-        public static async Task ClearToken(FileDataStore datastore, CancellationToken cancellation)
-        {
-            cancellation.ThrowIfCancellationRequested();
-            if (datastore != null)
+            public static async Task ClearToken(FileDataStore datastore, CancellationToken cancellation)
             {
-                await datastore.ClearAsync();
+                cancellation.ThrowIfCancellationRequested();
+                if (datastore != null)
+                {
+                    await datastore.ClearAsync();
+                }
             }
-        }
-        public static async Task<AppTokenResult> RenewAccessTokenAsync(OAuthTicket ticket, FileDataStore datastore, string userid)
-        {
-            string oldRefreshToken = ticket.RefreshToken;
-            AppTokenResult appToken = null;
+            public static async Task<AppTokenResult> RenewAccessTokenAsync(OAuthTicket ticket, FileDataStore datastore, string userid)
+            {
+                string oldRefreshToken = ticket.RefreshToken;
+                AppTokenResult appToken = null;
 
-            if (!string.IsNullOrEmpty(oldRefreshToken))
-            {
-                appToken = await MicrosoftAccountOAuth.RedeemRefreshTokenAsync(msa_client_id, msa_client_secret, oldRefreshToken);
-                await SaveToken(datastore, userid, appToken, CancellationToken.None);
+                if (!string.IsNullOrEmpty(oldRefreshToken))
+                {
+                    appToken = await MicrosoftAccountOAuth.RedeemRefreshTokenAsync(msa_client_id, msa_client_secret, oldRefreshToken);
+                    await SaveToken(datastore, userid, appToken, CancellationToken.None);
+                }
+                return appToken;
             }
-            return appToken;
+        }
+        public class OAuthTicket : OneDrive.IAuthenticationInfo
+        {
+            public OAuthTicket(string accessToken, DateTimeOffset expirationTime, string refreshToken = null)
+            {
+                AccessToken = accessToken;
+                TokenExpiration = expirationTime;
+                TokenType = "Bearer";
+                RefreshToken = refreshToken;
+            }
+
+            public OAuthTicket(AppTokenResult ticket)
+            {
+                PopulateOAuthTicket(ticket);
+            }
+
+            public string AccessToken { get; set; }
+            public string TokenType { get; set; }
+            public DateTimeOffset TokenExpiration { get; set; }
+            public string RefreshToken { get; set; }
+
+            public async Task<bool> RefreshAccessTokenAsync(string userid, FileDataStore datastore)
+            {
+                var newTicket = await OneDriveLogin.RenewAccessTokenAsync(this, datastore, userid);
+                PopulateOAuthTicket(newTicket);
+
+                return (newTicket != null);
+            }
+
+            private void PopulateOAuthTicket(AppTokenResult newTicket)
+            {
+                if (null != newTicket)
+                {
+                    AccessToken = newTicket.AccessToken;
+                    TokenExpiration = DateTimeOffset.Now.AddSeconds(newTicket.AccessTokenExpirationDuration);
+                    TokenType = newTicket.TokenType;
+                    RefreshToken = newTicket.RefreshToken;
+                }
+            }
+
+            public string AuthorizationHeaderValue
+            {
+                get { return string.Concat(TokenType, " ", AccessToken); }
+            }
+
+
+            public Task<bool> RefreshAccessTokenAsync()
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public class DropBoxLogin
+        {
+            private const string msa_client_id = "mvcecvucfebuzg0";
+            private const string msa_client_secret = "1l4ne87naufenjk";
+            public async static Task<TokenResult> SignInToDropBox(string userid, string path)
+            {
+                FileDataStore datastore = new FileDataStore(path);
+                TokenResult token = await LoadToken(datastore, userid, CancellationToken.None).ConfigureAwait(false);
+                if (token == null)
+                {
+                    string code = await loginform.GetAuthenticationToken("mvcecvucfebuzg0", null, "1l4ne87naufenjk", "https://www.dropbox.com/1/oauth2/authorize", null, LoginOption.DropBox);
+                    if (code != null)
+                    {
+                        token = GetAccessToken(code);
+                        await SaveToken(datastore, userid, token, CancellationToken.None);
+                    }
+                }
+                return token;
+            }
+
+            private async static Task<TokenResult> LoadToken(FileDataStore datastore, string userid, CancellationToken cancellationToken)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (datastore != null)
+                {
+                    return await datastore.GetAsync<TokenResult>(userid).ConfigureAwait(false);
+                }
+                return null;
+            }
+            public static async Task SaveToken(FileDataStore datastore, string userid, TokenResult token, CancellationToken cancellation)
+            {
+                cancellation.ThrowIfCancellationRequested();
+                if (datastore != null)
+                {
+                    await datastore.StoreAsync<TokenResult>(userid, token);
+                }
+            }
+            private static TokenResult GetAccessToken(string AuthorizationCode)
+            {
+
+                var parameters = new NameValueCollection
+            {
+                { "client_id", msa_client_id },
+                { "client_secret", msa_client_secret },
+                { "grant_type", "authorization_code" },
+                { "code", AuthorizationCode }
+            };
+                var result = OAuthUtility.ExecuteRequest
+                (
+                  "POST",
+                  "https://api.dropbox.com/1/oauth2/token",
+                  parameters,
+                  null
+                );
+
+                if (result.ContainsKey("error"))
+                {
+                    return null;
+                }
+                else
+                {
+                    TokenResult token = OAuth2AccessTokenToTokenResult(new OAuth2AccessToken(result));
+                    return token;
+                }
+            }
+            static TokenResult OAuth2AccessTokenToTokenResult(OAuth2AccessToken oauth2)
+            {
+                TokenResult token = new TokenResult();
+                token.AccessToken = oauth2.Value;
+                token.Uid = oauth2.CollectionItems["uid"].ToString();
+                token.TokenType = oauth2.TokenType;
+                return token;
+            }
+            public class TokenResult
+            {
+                [JsonProperty("access_token")]
+                public string AccessToken { get; set; }
+                [JsonProperty("uid")]
+                public string Uid { get; set; }
+                [JsonProperty("token_type")]
+                public string TokenType { get; set; }
+            }
         }
     }
-    public class OAuthTicket : OneDrive.IAuthenticationInfo
-    {
-        public OAuthTicket(string accessToken, DateTimeOffset expirationTime, string refreshToken = null)
-        {
-            AccessToken = accessToken;
-            TokenExpiration = expirationTime;
-            TokenType = "Bearer";
-            RefreshToken = refreshToken;
-        }
-
-        public OAuthTicket(AppTokenResult ticket)
-        {
-            PopulateOAuthTicket(ticket);
-        }
-
-        public string AccessToken { get; set; }
-        public string TokenType { get; set; }
-        public DateTimeOffset TokenExpiration { get; set; }
-        public string RefreshToken { get; set; }
-
-        public async Task<bool> RefreshAccessTokenAsync(string userid, FileDataStore datastore)
-        {
-            var newTicket = await OneDriveLogin.RenewAccessTokenAsync(this, datastore, userid);
-            PopulateOAuthTicket(newTicket);
-
-            return (newTicket != null);
-        }
-
-        private void PopulateOAuthTicket(AppTokenResult newTicket)
-        {
-            if (null != newTicket)
-            {
-                AccessToken = newTicket.AccessToken;
-                TokenExpiration = DateTimeOffset.Now.AddSeconds(newTicket.AccessTokenExpirationDuration);
-                TokenType = newTicket.TokenType;
-                RefreshToken = newTicket.RefreshToken;
-            }
-        }
-
-        public string AuthorizationHeaderValue
-        {
-            get { return string.Concat(TokenType, " ", AccessToken); }
-        }
-
-
-        public Task<bool> RefreshAccessTokenAsync()
-        {
-            throw new NotImplementedException();
-        }
-    } 
 }

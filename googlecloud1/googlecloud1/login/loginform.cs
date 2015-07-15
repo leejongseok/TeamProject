@@ -12,13 +12,12 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 namespace googlecloud1.login
 {
-    public enum LoginOption { OneDrive, GoogleDrive };
+    public enum LoginOption { OneDrive, GoogleDrive, DropBox };
     public partial class loginform : Form
     {
         public string StartUrl { get; private set; }
         public string EndUrl { get; private set; }
         public string code { get; set; }
-        public GoogleAuthorizationCodeFlow flow { get; set; }
         LoginOption option;
         public loginform(string startutl, string endurl, string userid, LoginOption option)
         {
@@ -68,7 +67,7 @@ namespace googlecloud1.login
                     CloseWindow();
                 }
             }
-            else
+            else if(option == LoginOption.OneDrive)
             {
                 if (this.webBrowser1.Url.AbsoluteUri.StartsWith(EndUrl))
                 {
@@ -76,6 +75,15 @@ namespace googlecloud1.login
                     int index = querparams[0].IndexOf('=');
                     querparams[0] = querparams[0].Substring(index+1, (querparams[0].Length - index)-1);
                     this.code = querparams[0];
+                    CloseWindow();
+                }
+            }
+            else if(option == LoginOption.DropBox)
+            {
+                if(webBrowser1.Document.GetElementById("auth-code") != null)
+                {
+                    webBrowser1.Visible = false;
+                    this.code = webBrowser1.Document.GetElementById("auth-code").InnerText;
                     CloseWindow();
                 }
             }
@@ -170,21 +178,29 @@ namespace googlecloud1.login
             // 파라미터 사전
             Dictionary<string, string> urlParam = new Dictionary<string, string>();
             urlParam.Add("client_id", clientId);
-            urlParam.Add("scope", GenerateScopeString(scopes));
-            //서버에서 되돌아오는 반환 uri 설정 인스톨 응용 프로그램은 urn:ietf:wg:oauth:2.0:oob
-            urlParam.Add("redirect_uri", realendurl);
-            urlParam.Add("response_type", "code");
-            if(option == LoginOption.GoogleDrive)
+            if(LoginOption.DropBox != option)
             {
-                startUrl = BuildUriWithParameters(realurl, urlParam);
-                completeUrl = "Success";
+                urlParam.Add("scope", GenerateScopeString(scopes));
             }
-            else
+            urlParam.Add("response_type", "code");
+            //서버에서 되돌아오는 반환 uri 설정 인스톨 응용 프로그램은 urn:ietf:wg:oauth:2.0:oob
+            if (LoginOption.DropBox != option)
             {
-                urlParam.Add("display", "popup");
+                urlParam.Add("redirect_uri", realendurl);
+                if (option == LoginOption.GoogleDrive)
+                {
+                    realendurl = "Success";
+                }
+                else if (LoginOption.OneDrive == option)
+                {
+                    urlParam.Add("display", "popup");        
+                }
                 startUrl = BuildUriWithParameters(realurl, urlParam);
                 completeUrl = realendurl;
+                return;
             }
+            startUrl = BuildUriWithParameters(realurl, urlParam);
+            completeUrl = realendurl;
         }
         /// <summary>
         /// url 파라미터를 형식에 맞춰 url로 만들어준다

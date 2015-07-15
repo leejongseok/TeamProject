@@ -6,12 +6,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using System.IO;
+using System.Web;
+using System.Collections.Specialized;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v2;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Google.Apis.Auth.OAuth2.Flows;
 using MicrosoftAccount.WindowsForms;
+using Nemiro.OAuth;
+using Nemiro.OAuth.Extensions;
 namespace googlecloud1.login
 {
     class GoogleWebAuthorization : GoogleWebAuthorizationBroker
@@ -108,7 +112,6 @@ namespace googlecloud1.login
                 httpResponse.Dispose();
                 return null;
             }
-
             using (var responseBodyStreamReader = new StreamReader(httpResponse.GetResponseStream()))
             {
                 var responseBody = await responseBodyStreamReader.ReadToEndAsync();
@@ -118,5 +121,8 @@ namespace googlecloud1.login
                 return tokenResult;
             }
         }
+    }
+    class DropBoxWebAuthorization
+    {
     }
 }
